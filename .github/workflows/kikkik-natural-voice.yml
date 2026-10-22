@@ -1,0 +1,33 @@
+name: Build Kikkik natural Korean narration
+
+on:
+  push:
+    paths:
+      - '.github/workflows/kikkik-natural-voice.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install Edge TTS
+        run: |
+          ffmpeg -version | head -1
+          python -m pip install --disable-pip-version-check --no-cache-dir edge-tts
+      - name: Generate narration
+        run: python kikkik-build-20261022/build_narration.py
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: kikkik-natural-korean-voice
+          path: kikkik-build-20261022/output/*
+          if-no-files-found: error
+          retention-days: 3
